@@ -1,0 +1,3 @@
+docker run -dt --net mynet123 --name server$1 --hostname server$1 myapp5
+echo "    server server$1 server$1:8080 check" >> haproxy/haproxy.cfg 
+docker kill -s HUP haproxy1

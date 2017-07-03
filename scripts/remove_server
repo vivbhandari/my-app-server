@@ -1,0 +1,4 @@
+docker stop server$1
+docker rm server$1
+sed -i.bak "/server server$1 server$1:8080 check/d" ./haproxy/haproxy.cfg 
+docker kill -s HUP haproxy1
