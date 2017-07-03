@@ -3,6 +3,10 @@
 IMAGE=myapp
 VERSION=1
 
+start-dev:
+	export PATH=/usr/local/apache-maven-3.5.0/bin:$PATH
+	mvn exec:java
+
 image:
 	docker build -t $(IMAGE) .
 
