@@ -1,1 +1,7 @@
 target
+host_volume
+haproxy/haproxy.cfg
+.DS_Store
+.classpath
+.project
+.settings

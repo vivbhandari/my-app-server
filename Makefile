@@ -3,8 +3,11 @@
 IMAGE=myapp
 VERSION=2
 
-start-dev:
+prepare:
 	export PATH=/usr/local/apache-maven-3.5.0/bin:$PATH
+	mvn install
+
+start-dev:
 	mvn exec:java
 
 image:
@@ -14,8 +17,9 @@ tag:
 	docker tag $(IMAGE):latest $(IMAGE):$(VERSION)
 
 start:
+	cp haproxy/haproxy_pristine.cfg haproxy/haproxy.cfg
 	docker run -dt --name haproxy1 --net mynet123 -p 80:80 -v `pwd`/haproxy:/usr/local/etc/haproxy:ro haproxy:1.7
-	docker run -dt --name mysql1 --hostname mysql1 --net mynet123 -e MYSQL_ROOT_PASSWORD=root mysql
+	docker run -dt --name mysql1 --hostname mysql1 --net mynet123 -v `pwd`/host_volume/mysql1:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=root mysql
 	make add-server number=1
 	make add-server number=2
 
@@ -33,5 +37,6 @@ remove-server:
 stop:
 	docker stop `docker ps --no-trunc -aq`
 	docker rm `docker ps --no-trunc -aq`
-	cp haproxy/haproxy_pristine.cfg haproxy/haproxy.cfg
 
+clean-db:
+	rm -rf host_volume/mysql1/*
