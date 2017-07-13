@@ -1,7 +1,7 @@
 .PHONY: all test clean
 
 IMAGE=myapp
-VERSION=1
+VERSION=2
 
 start-dev:
 	export PATH=/usr/local/apache-maven-3.5.0/bin:$PATH
@@ -15,6 +15,7 @@ tag:
 
 start:
 	docker run -dt --name haproxy1 --net mynet123 -p 80:80 -v `pwd`/haproxy:/usr/local/etc/haproxy:ro haproxy:1.7
+	docker run -dt --name mysql1 --hostname mysql1 --net mynet123 -e MYSQL_ROOT_PASSWORD=root mysql
 	make add-server number=1
 	make add-server number=2
 
