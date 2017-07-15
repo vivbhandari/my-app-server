@@ -1,13 +1,15 @@
 .PHONY: all test clean
 
 IMAGE=myapp
-VERSION=2
+VERSION=3
 
 prepare:
 	export PATH=/usr/local/apache-maven-3.5.0/bin:$PATH
 	mvn install
 
 start-dev:
+	sudo launchctl load -F /Library/LaunchDaemons/com.oracle.oss.mysql.mysqld.plist
+	mvn package
 	mvn exec:java
 
 image:
