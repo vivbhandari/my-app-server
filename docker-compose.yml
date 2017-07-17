@@ -1,0 +1,53 @@
+version: '3'
+services:
+  server1:
+    image: myapp:3
+    tty: true
+    hostname: server1
+    networks: 
+      - mynet123
+  server2:
+    image: myapp:3
+    tty: true
+    hostname: server2
+    networks: 
+      - mynet123
+  haproxy1:
+    image: haproxy:1.7
+    ports:
+      - "80:80"
+    volumes:
+      - ./host_volume/haproxy1/:/usr/local/etc/haproxy:ro
+    networks: 
+      - mynet123
+  mysql1:
+    image: mysql
+    volumes:
+      - ./host_volume/mysql1:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    networks: 
+      - mynet123
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+    networks: 
+      - mynet123
+  kafka1:
+    image: wurstmeister/kafka 
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: kafka1
+      KAFKA_CREATE_TOPICS: "test:1:1"
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks: 
+      - mynet123
+
+networks:
+    mynet123:
+        driver: bridge
+      

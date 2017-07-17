@@ -18,12 +18,18 @@ image:
 tag:
 	docker tag $(IMAGE):latest $(IMAGE):$(VERSION)
 
-start:
+start-old:
 	cp haproxy/haproxy_pristine.cfg host_volume/haproxy1/haproxy.cfg
 	docker run -dt --name haproxy1 --net mynet123 -p 80:80 -v `pwd`/host_volume/haproxy1/:/usr/local/etc/haproxy:ro haproxy:1.7
 	docker run -dt --name mysql1 --hostname mysql1 --net mynet123 -v `pwd`/host_volume/mysql1:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=root mysql
 	make add-server number=1
 	make add-server number=2
+
+start:
+	cp haproxy/haproxy_pristine.cfg host_volume/haproxy1/haproxy.cfg
+	echo "    server server1 server1:8080 check" >> ./host_volume/haproxy1/haproxy.cfg
+	echo "    server server2 server2:8080 check" >> ./host_volume/haproxy1/haproxy.cfg
+	docker-compose -f docker-compose.yml up -d
 
 add-server:
 	docker run -dt --net mynet123 --name server$(number) --hostname server$(number) $(IMAGE):$(VERSION) 
