@@ -21,13 +21,30 @@ public class MyResource {
 	 */
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
+	@Path("test")
+	public String test() {
+		return "test";
+	}
+
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
 	public String getCounter() {
-		return "Served by " + Main.CONTAINER + ", counter=" + QueryEngine.getCounter() + "\n";
+		String returnStr = "Served by %s, from %s, counter=%s \n";
+		Integer counter = Main.myKafkaConsumer.counter;
+		String source = "kafka";
+		if (counter == null) {
+			counter = QueryEngine.getCounter();
+			source = "db";
+			Main.myKafkaProducer.sendCounter(counter);
+		}
+
+		return String.format(returnStr, Main.CONTAINER, source, counter);
 	}
 
 	@POST
 	public Response incrementCounter() {
 		int counter = QueryEngine.incrementCounter();
+		Main.myKafkaProducer.sendCounter(counter);
 		return Response.status(200).entity("Served by " + Main.CONTAINER + ", new value=" + counter + "\n").build();
 	}
 }

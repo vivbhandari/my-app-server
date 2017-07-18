@@ -43,6 +43,11 @@
 		    <artifactId>mysql-connector-java</artifactId>
 		    <version>5.1.39</version>
 		</dependency>
+		<dependency>
+		    <groupId>org.apache.kafka</groupId>
+		    <artifactId>kafka_2.10</artifactId>
+		    <version>0.10.1.1</version>
+		</dependency>
     </dependencies>
 
     <build>
@@ -55,6 +60,7 @@
                 <configuration>
                     <source>1.7</source>
                     <target>1.7</target>
+			        <skipTests>true</skipTests>
                 </configuration>
             </plugin>
             <plugin>

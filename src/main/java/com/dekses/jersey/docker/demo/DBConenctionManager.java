@@ -2,7 +2,6 @@ package com.dekses.jersey.docker.demo;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.SQLException;
 
 public class DBConenctionManager {
 	private static Connection con = null;
@@ -21,7 +20,7 @@ public class DBConenctionManager {
 					mysqlHost = "mysql1";
 				}
 				con = DriverManager.getConnection("jdbc:mysql://" + mysqlHost + ":3306/test", "root", "root");
-			} catch (SQLException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
