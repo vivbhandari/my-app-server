@@ -1,6 +1,6 @@
 .PHONY: all test clean
 
-IMAGE=myapp
+IMAGE=vivekbhandari/myapp
 VERSION=4
 
 prepare:
