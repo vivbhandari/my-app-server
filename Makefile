@@ -8,8 +8,8 @@ prepare:
 	mvn install
 
 create-host-volume:
-       mkdir -p host_volume/haproxy1
-       mkdir -p host_volume/msql1
+	mkdir -p host_volume/haproxy1
+	mkdir -p host_volume/msql1
 
 start-dev:
 	sudo launchctl load -F /Library/LaunchDaemons/com.oracle.oss.mysql.mysqld.plist
