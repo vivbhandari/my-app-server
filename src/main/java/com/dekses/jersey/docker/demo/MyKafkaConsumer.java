@@ -6,6 +6,8 @@ import java.util.Properties;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
 
 public class MyKafkaConsumer implements Runnable {
 	public boolean stopListening = false;
@@ -30,7 +32,17 @@ public class MyKafkaConsumer implements Runnable {
 			ConsumerRecords<String, String> records = consumer.poll(100);
 			for (ConsumerRecord<String, String> record : records) {
 				System.out.printf("offset = %d, key = %s, value = %s%n", record.offset(), record.key(), record.value());
-				counter = Integer.parseInt(record.value());
+				if (record.key().equals("counter")) {
+					counter = Integer.parseInt(record.value());
+				} else if (record.key().equals("token")) {
+					try {
+						JSONObject jsonObject = new JSONObject(record.value());
+						UserUtil.getInstance().tokens.put(jsonObject.getString("token"),
+								jsonObject.getString("username"));
+					} catch (JSONException e) {
+						e.printStackTrace();
+					}
+				}
 			}
 		}
 		consumer.close();

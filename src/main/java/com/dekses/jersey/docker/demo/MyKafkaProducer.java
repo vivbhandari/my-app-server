@@ -4,6 +4,7 @@ import java.util.Properties;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.codehaus.jettison.json.JSONException;
 
 public class MyKafkaProducer {
 	KafkaProducer<String, String> producer = null;
@@ -25,6 +26,11 @@ public class MyKafkaProducer {
 	public void sendCounter(int counter) {
 		System.out.println("Sending counter");
 		producer.send(new ProducerRecord<String, String>("test", "counter", Integer.toString(counter)));
+	}
+
+	public void sendToken(String token) throws JSONException {
+		System.out.println("Sending token");
+		producer.send(new ProducerRecord<String, String>("test", "token", token));
 	}
 
 	public void close() {

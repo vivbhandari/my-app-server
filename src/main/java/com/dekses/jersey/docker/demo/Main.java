@@ -1,5 +1,6 @@
 package com.dekses.jersey.docker.demo;
 
+import java.awt.Container;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
@@ -56,8 +57,10 @@ public class Main {
 		final HttpServer server = startServer();
 
 		// initialize kafka resources
-		myKafkaProducer = new MyKafkaProducer();
-		myKafkaConsumer = new MyKafkaConsumer();
+		if (!CONTAINER.equals("localhost")) {
+			myKafkaProducer = new MyKafkaProducer();
+			myKafkaConsumer = new MyKafkaConsumer();
+		}
 
 		System.out.println(String.format(
 				"Jersey app started with WADL available at " + "%sapplication.wadl\nHit enter to stop it...",

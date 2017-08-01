@@ -1,15 +1,12 @@
 package com.dekses.jersey.docker.demo;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
@@ -38,6 +35,15 @@ public class MyResource {
 	}
 
 	@GET
+	@Secured
+	@Produces(MediaType.TEXT_PLAIN)
+	@Path("securedtest")
+	public String securedtest() {
+		return "securedtest";
+	}
+
+	@GET
+	@Secured
 	@Produces(MediaType.TEXT_PLAIN)
 	@Path("counter")
 	public String getCounter() {
@@ -54,6 +60,7 @@ public class MyResource {
 	}
 
 	@GET
+	@Secured
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("providers")
 	public Response getProviders() throws JSONException {
@@ -71,6 +78,9 @@ public class MyResource {
 	}
 
 	@POST
+	@Secured
+	@Produces(MediaType.TEXT_PLAIN)
+	@Path("counter")
 	public Response incrementCounter() {
 		int counter = QueryEngine.incrementCounter();
 		Main.myKafkaProducer.sendCounter(counter);
