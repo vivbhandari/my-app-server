@@ -11,6 +11,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
 @Path("/authentication")
@@ -20,33 +21,71 @@ public class AuthenticationEndpoint {
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	public Response authenticateUser(@QueryParam("username") String username, @QueryParam("password") String password) {
+	public Response authenticateUser(@QueryParam("username") String username,
+			@QueryParam("password") String password) {
 
 		try {
 			// Authenticate the user using the credentials provided
 			authenticate(username, password);
 
 			// Issue a token for the user
-			String token = issueToken(username);
-			JSONObject jsonObject = new JSONObject();
-			jsonObject.put("token", token);
-			jsonObject.put("username", username);
+			JSONObject jsonObject = getAuthenticationPayload(username);
 
 			if (Main.myKafkaProducer != null) {
 				Main.myKafkaProducer.sendToken(jsonObject.toString());
 			}
 
 			// Return the token on the response
-			return Response.ok(jsonObject.toString()).build();
-
+			return Response.status(201).entity(jsonObject.toString()).build();
 		} catch (Exception e) {
+			e.printStackTrace();
 			return Response.status(Response.Status.UNAUTHORIZED).build();
 		}
 	}
 
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Path("/refresh")
+	public Response refreshToken(@QueryParam("username") String username,
+			@QueryParam("token") String refreshToken) {
+
+		try {
+			String expectedUsername = UserUtil.getInstance().refreshTokens.remove(refreshToken);
+
+			if (expectedUsername.equals(username)) {
+				// Issue a new token for the user
+				JSONObject jsonObject = getAuthenticationPayload(username);
+
+				if (Main.myKafkaProducer != null) {
+					Main.myKafkaProducer.sendToken(jsonObject.toString());
+				}
+
+				// Return the token on the response
+				return Response.status(201).entity(jsonObject.toString()).build();
+			} else {
+				return Response.status(Response.Status.UNAUTHORIZED).build();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
+	}
+
+	private JSONObject getAuthenticationPayload(String username) throws JSONException {
+		// Issue a token for the user
+		String accessToken = issueAccessToken(username);
+		String refreshToken = issueRefreshToken(username);
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("access_token", accessToken);
+		jsonObject.put("refresh_token", refreshToken);
+		jsonObject.put("username", username);
+		jsonObject.put("token_type", "Bearer");
+		jsonObject.put("expires_in", "30000");
+		return jsonObject;
+	}
+
 	private void authenticate(String username, String password) throws Exception {
-		// Authenticate against a database, LDAP, file or whatever
-		// Throw an Exception if the credentials are invalid
 		if (UserUtil.getInstance().users.containsKey(username)
 				&& UserUtil.getInstance().users.get(username).equals(password)) {
 			return;
@@ -54,13 +93,19 @@ public class AuthenticationEndpoint {
 		throw new Exception("authentication failed");
 	}
 
-	private String issueToken(String username) {
-		// Issue a token (can be a random String persisted to a database or a
-		// JWT token)
-		// The issued token must be associated to a user
-		// Return the issued token
-		String token = new BigInteger(130, secureRandom).toString(32);
-		UserUtil.getInstance().tokens.put(token, username);
+	private String issueAccessToken(String username) {
+		String token = getToken();
+		UserUtil.getInstance().accessTokens.put(token, username);
 		return token;
+	}
+
+	private String issueRefreshToken(String username) {
+		String token = getToken();
+		UserUtil.getInstance().refreshTokens.put(token, username);
+		return token;
+	}
+
+	private String getToken() {
+		return new BigInteger(130, secureRandom).toString(32);
 	}
 }

@@ -32,7 +32,6 @@ public class AuthenticationFilter implements ContainerRequestFilter {
 		String token = authorizationHeader.substring("Bearer".length()).trim();
 
 		try {
-			// Validate the token
 			validateToken(token);
 		} catch (Exception e) {
 			requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
@@ -40,9 +39,8 @@ public class AuthenticationFilter implements ContainerRequestFilter {
 	}
 
 	private void validateToken(String token) throws Exception {
-		// Check if it was issued by the server and if it's not expired
-		// Throw an Exception if the token is invalid
-		if (!UserUtil.getInstance().tokens.containsKey(token)) {
+		String username = UserUtil.getInstance().accessTokens.get(token);
+		if (username == null) {
 			throw new Exception("Authentication failed");
 		}
 	}

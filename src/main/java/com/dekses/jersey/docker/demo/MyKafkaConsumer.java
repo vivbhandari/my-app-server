@@ -37,7 +37,9 @@ public class MyKafkaConsumer implements Runnable {
 				} else if (record.key().equals("token")) {
 					try {
 						JSONObject jsonObject = new JSONObject(record.value());
-						UserUtil.getInstance().tokens.put(jsonObject.getString("token"),
+						UserUtil.getInstance().accessTokens.put(jsonObject.getString("access_token"),
+								jsonObject.getString("username"));
+						UserUtil.getInstance().refreshTokens.put(jsonObject.getString("refresh_token"),
 								jsonObject.getString("username"));
 					} catch (JSONException e) {
 						e.printStackTrace();
