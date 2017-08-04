@@ -31,16 +31,18 @@ public class MyKafkaConsumer implements Runnable {
 		while (!stopListening) {
 			ConsumerRecords<String, String> records = consumer.poll(100);
 			for (ConsumerRecord<String, String> record : records) {
-				System.out.printf("offset = %d, key = %s, value = %s%n", record.offset(), record.key(), record.value());
+				System.out.printf("offset = %d, key = %s, value = %s%n", record.offset(),
+						record.key(), record.value());
 				if (record.key().equals("counter")) {
 					counter = Integer.parseInt(record.value());
 				} else if (record.key().equals("token")) {
 					try {
 						JSONObject jsonObject = new JSONObject(record.value());
-						UserUtil.getInstance().accessTokens.put(jsonObject.getString("access_token"),
+						UserUtil.getInstance().accessTokens.put(
+								jsonObject.getString("access_token"),
 								jsonObject.getString("username"));
-						UserUtil.getInstance().refreshTokens.put(jsonObject.getString("refresh_token"),
-								jsonObject.getString("username"));
+						UserUtil.getInstance().refreshTokens.put(jsonObject.getString("username"),
+								jsonObject.getString("refresh_token"));
 					} catch (JSONException e) {
 						e.printStackTrace();
 					}

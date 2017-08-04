@@ -11,7 +11,6 @@ import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
-
 /**
  * Root resource (exposed at "myresource" path)
  */
@@ -64,6 +63,7 @@ public class MyResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("providers")
 	public Response getProviders() throws JSONException {
+		System.out.println(String.format("Served by %s \n", Main.CONTAINER));
 
 		JSONObject jsonObject = new JSONObject();
 		JSONArray jsonProviders = new JSONArray();
@@ -84,6 +84,7 @@ public class MyResource {
 	public Response incrementCounter() {
 		int counter = QueryEngine.incrementCounter();
 		Main.myKafkaProducer.sendCounter(counter);
-		return Response.status(201).entity("Served by " + Main.CONTAINER + ", new value=" + counter + "\n").build();
+		return Response.status(201)
+				.entity("Served by " + Main.CONTAINER + ", new value=" + counter + "\n").build();
 	}
 }

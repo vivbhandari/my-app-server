@@ -5,7 +5,8 @@ import java.util.HashMap;
 import org.apache.commons.collections4.map.PassiveExpiringMap;
 
 public class UserUtil {
-	PassiveExpiringMap<String, String> accessTokens = new PassiveExpiringMap<String, String>(30000);
+	int tokenExpiryTime = 60000;
+	PassiveExpiringMap<String, String> accessTokens = new PassiveExpiringMap<String, String>(tokenExpiryTime);
 	HashMap<String, String> refreshTokens = new HashMap<String, String>();
 	HashMap<String, String> users = new HashMap<String, String>();
 	private static UserUtil userUtil = null;

@@ -51,9 +51,9 @@ public class AuthenticationEndpoint {
 			@QueryParam("token") String refreshToken) {
 
 		try {
-			String expectedUsername = UserUtil.getInstance().refreshTokens.remove(refreshToken);
+			String expectedRefreshToken = UserUtil.getInstance().refreshTokens.remove(username);
 
-			if (expectedUsername.equals(username)) {
+			if (expectedRefreshToken.equals(refreshToken)) {
 				// Issue a new token for the user
 				JSONObject jsonObject = getAuthenticationPayload(username);
 
@@ -81,7 +81,7 @@ public class AuthenticationEndpoint {
 		jsonObject.put("refresh_token", refreshToken);
 		jsonObject.put("username", username);
 		jsonObject.put("token_type", "Bearer");
-		jsonObject.put("expires_in", "30000");
+		jsonObject.put("expires_in", UserUtil.getInstance().tokenExpiryTime);
 		return jsonObject;
 	}
 
@@ -101,7 +101,7 @@ public class AuthenticationEndpoint {
 
 	private String issueRefreshToken(String username) {
 		String token = getToken();
-		UserUtil.getInstance().refreshTokens.put(token, username);
+		UserUtil.getInstance().refreshTokens.put(username, token);
 		return token;
 	}
 
