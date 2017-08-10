@@ -1,9 +1,9 @@
 # fetch basic image
-FROM ubuntu:14.04
+FROM ubuntu:15.04
 
 # Install JDK with no add-ons
 RUN apt-get update && \
-    apt-get -y -f install openjdk-7-jdk && \
+    apt-get -y -f install openjdk-8-jdk && \
     apt-get -y -f install mysql-client && \
     apt-get -y -f install curl
 
