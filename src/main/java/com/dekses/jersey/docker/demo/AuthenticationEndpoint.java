@@ -2,6 +2,7 @@ package com.dekses.jersey.docker.demo;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.util.Arrays;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -14,13 +15,14 @@ import javax.ws.rs.core.Response;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
-@Path("/authentication")
+@Path("/user")
 public class AuthenticationEndpoint {
 	private SecureRandom secureRandom = new SecureRandom();
 
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Path("authentication")
 	public Response authenticateUser(@QueryParam("username") String username,
 			@QueryParam("password") String password) {
 
@@ -32,7 +34,54 @@ public class AuthenticationEndpoint {
 			JSONObject jsonObject = getAuthenticationPayload(username);
 
 			if (Main.myKafkaProducer != null) {
-				Main.myKafkaProducer.sendToken(jsonObject.toString());
+				Main.myKafkaProducer.sendRecord("token", jsonObject.toString());
+			}
+
+			// Return the token on the response
+			return Response.status(201).entity(jsonObject.toString()).build();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return Response.status(Response.Status.UNAUTHORIZED).entity("{}").build();
+		}
+	}
+
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Path("register")
+	public Response registerUser(String input) {
+		System.out.println("registerUser=" + input);
+
+		try {
+			JSONObject jsonInput = new JSONObject(input);
+
+			String username = jsonInput.getString("emailId");
+
+			if (UserUtil.getInstance().users.containsKey(username)) {
+				return Response.status(Response.Status.CONFLICT)
+						.entity("{\"reason\": \"user already exist\"}").build();
+			}
+
+			// Issue a token for the user
+			JSONObject jsonObject = getAuthenticationPayload(username);
+
+			if (Main.myKafkaProducer != null) {
+				Main.myKafkaProducer.sendRecord("provider", jsonInput.toString());
+				// this is only required till user db is not there
+				jsonObject.put("password", jsonInput.getString("password"));
+				Main.myKafkaProducer.sendRecord("token", jsonObject.toString());
+				jsonObject.remove("password");
+			} else {
+				// Dev mode
+				UserUtil.getInstance().users.put(username, jsonInput.getString("password"));
+
+				String image = null;
+				if (jsonInput.has("image")) {
+					image = jsonInput.getString("image");
+				}
+
+				UserUtil.getInstance().providersData.add(Arrays.asList(new String[] {
+						jsonInput.getString("name"), jsonInput.getString("address"), image }));
 			}
 
 			// Return the token on the response
@@ -46,7 +95,7 @@ public class AuthenticationEndpoint {
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	@Path("/refresh")
+	@Path("authentication/refresh")
 	public Response refreshToken(@QueryParam("username") String username,
 			@QueryParam("token") String refreshToken) {
 
@@ -58,7 +107,7 @@ public class AuthenticationEndpoint {
 				JSONObject jsonObject = getAuthenticationPayload(username);
 
 				if (Main.myKafkaProducer != null) {
-					Main.myKafkaProducer.sendToken(jsonObject.toString());
+					Main.myKafkaProducer.sendRecord("token", jsonObject.toString());
 				}
 
 				// Return the token on the response

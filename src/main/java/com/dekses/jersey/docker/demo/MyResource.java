@@ -1,6 +1,7 @@
 package com.dekses.jersey.docker.demo;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -19,11 +20,6 @@ import org.codehaus.jettison.json.JSONObject;
  */
 @Path("myresource")
 public class MyResource {
-
-	String[][] providersData = {
-			{ "Home", "1050 columbus ave,san francisco,ca 94133", "vivek.jpg" },
-			{ "Work", "333 Bryant Street,san francisco,ca", "Ali.png" },
-			{ "Demandbase", "Demandbase", null } };
 
 	/**
 	 * Method handling HTTP GET requests. The returned object will be sent to
@@ -69,26 +65,35 @@ public class MyResource {
 	@Path("providers")
 	public Response getProviders() throws JSONException {
 		System.out.println(String.format("Served by %s \n", Main.CONTAINER));
-		ClassLoader classLoader = getClass().getClassLoader();
 
 		JSONObject jsonObject = new JSONObject();
 		JSONArray jsonProviders = new JSONArray();
-		for (String[] provider : providersData) {
-			System.out.println(Arrays.toString(provider));
+		for (List<String> provider : UserUtil.getInstance().providersData) {
 			JSONObject jsonProvider = new JSONObject();
-			jsonProvider.put("title", provider[0]);
-			jsonProvider.put("address", provider[1]);
-			String image = provider[2];
-			if (image != null) {
-				String fileName = classLoader.getResource(image).getFile();
-				System.out.println("path=" + fileName);
-				image = ImageManipulation.covertToString(fileName);
-			}
-			jsonProvider.put("image", image);
+			jsonProvider.put("title", provider.get(0));
+			jsonProvider.put("address", provider.get(1));
+			jsonProvider.put("image", provider.get(2));
 			jsonProviders.put(jsonProvider);
 		}
 		jsonObject.put("providers", jsonProviders);
 		return Response.status(200).entity(jsonObject.toString()).build();
+	}
+
+	@POST
+	@Secured
+	@Produces(MediaType.TEXT_PLAIN)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Path("users")
+	public Response registerProvider(String input) throws JSONException {
+		System.out.println(String.format("Served by %s \n", Main.CONTAINER));
+
+		JSONObject jsonObject = new JSONObject(input);
+		List<String> provider = new ArrayList<String>();
+		provider.add(jsonObject.getString("title"));
+		provider.add(jsonObject.getString("address"));
+		provider.add(jsonObject.getString("image"));
+		UserUtil.getInstance().providersData.add(provider);
+		return Response.status(201).entity("success \n").build();
 	}
 
 	@GET
@@ -122,7 +127,8 @@ public class MyResource {
 	public Response saveImage(String input) throws JSONException {
 		JSONObject inputJsonObject = new JSONObject(input);
 		System.out.println(String.format("saveImage Served by %s \n", Main.CONTAINER));
-		ImageManipulation.covertToImage(inputJsonObject.getString("data"));
+		ImageManipulation.covertToImage(inputJsonObject.getString("data"),
+				"/Users/vivb/Ali_output.png");
 		return Response.status(201).entity("Served by " + Main.CONTAINER + "\n").build();
 	}
 

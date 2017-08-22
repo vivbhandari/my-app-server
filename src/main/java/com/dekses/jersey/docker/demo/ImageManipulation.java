@@ -41,9 +41,9 @@ public class ImageManipulation {
 		return null;
 	}
 
-	public static void covertToImage(String imageDataString) {
+	public static void covertToImage(String imageDataString, String filepath) {
 
-		File file = new File("/Users/vivb/Ali_output.png");
+		File file = new File(filepath);
 
 		try {
 			// decompress code

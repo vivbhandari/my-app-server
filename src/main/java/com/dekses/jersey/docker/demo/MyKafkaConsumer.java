@@ -43,6 +43,23 @@ public class MyKafkaConsumer implements Runnable {
 								jsonObject.getString("username"));
 						UserUtil.getInstance().refreshTokens.put(jsonObject.getString("username"),
 								jsonObject.getString("refresh_token"));
+						if (jsonObject.has("password")) {
+							UserUtil.getInstance().users.put(jsonObject.getString("username"),
+									jsonObject.getString("password"));
+						}
+					} catch (JSONException e) {
+						e.printStackTrace();
+					}
+				} else if (record.key().equals("provider")) {
+					try {
+						JSONObject jsonObject = new JSONObject(record.value());
+						String image = null;
+						if (jsonObject.has("image")) {
+							image = jsonObject.getString("image");
+						}
+						UserUtil.getInstance().providersData
+								.add(Arrays.asList(new String[] { jsonObject.getString("name"),
+										jsonObject.getString("address"), image }));
 					} catch (JSONException e) {
 						e.printStackTrace();
 					}

@@ -25,12 +25,13 @@ public class MyKafkaProducer {
 
 	public void sendCounter(int counter) {
 		System.out.println("Sending counter");
-		producer.send(new ProducerRecord<String, String>("test", "counter", Integer.toString(counter)));
+		producer.send(
+				new ProducerRecord<String, String>("test", "counter", Integer.toString(counter)));
 	}
 
-	public void sendToken(String token) throws JSONException {
-		System.out.println("Sending token");
-		producer.send(new ProducerRecord<String, String>("test", "token", token));
+	public void sendRecord(String key, String data) throws JSONException {
+		System.out.println("Sending " + key);
+		producer.send(new ProducerRecord<String, String>("test", key, data));
 	}
 
 	public void close() {
