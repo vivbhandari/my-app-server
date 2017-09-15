@@ -1,13 +1,13 @@
 version: '3'
 services:
   server1:
-    image: vivekbhandari/myapp:10
+    image: vivekbhandari/myapp:11
     tty: true
     hostname: server1
     networks: 
       - mynet123
   server2:
-    image: vivekbhandari/myapp:10
+    image: vivekbhandari/myapp:11
     tty: true
     hostname: server2
     networks: 

@@ -131,6 +131,7 @@ public class AuthenticationEndpoint {
 		jsonObject.put("username", username);
 		jsonObject.put("token_type", "Bearer");
 		jsonObject.put("expires_in", UserUtil.getInstance().tokenExpiryTime);
+		jsonObject.put("image", UserUtil.getInstance().getImageData("Vivek_profile.jpg"));
 		return jsonObject;
 	}
 

@@ -1,7 +1,7 @@
 .PHONY: all test clean
 
 IMAGE=vivekbhandari/myapp
-VERSION=10
+VERSION=11
 
 prepare:
 	export PATH=/usr/local/apache-maven-3.5.0/bin:$PATH
