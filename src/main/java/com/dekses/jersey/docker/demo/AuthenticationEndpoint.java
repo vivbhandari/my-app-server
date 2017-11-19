@@ -62,6 +62,11 @@ public class AuthenticationEndpoint {
 						.entity("{\"reason\": \"user already exist\"}").build();
 			}
 
+			if (!Payment.process(jsonInput.getString("tokenId"))){
+				return Response.status(Response.Status.EXPECTATION_FAILED)
+						.entity("{\"reason\": \"card payment failed\"}").build();
+			}
+
 			// Issue a token for the user
 			JSONObject jsonObject = getAuthenticationPayload(username);
 
